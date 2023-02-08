@@ -46,3 +46,17 @@ Example:
 
 For the `Token` data structure, the two fields needed are `type` (represents the type) and `literal` (contains the value of the token)
 
+### The Lexer
+
+> The Lexer will take source code as input and output the tokens that represent the source code
+
+- It will go through its input and output the next token it recognizes
+
+- Buffering or saving tokens is not needed as it will call the method, `NextToken` which outputs the next token
+
+- Initialize the lexer with source code and repeatedly call `NextToken`, for each token and character
+
+- `string` will be used as the type for the source code
+- In a production env, a file name and line number is usually attached to tokens (to assist with tracking down lexing and parsing errors)
+- It would be more ideal to initialize with an `io.Reader` along with the file name
+
