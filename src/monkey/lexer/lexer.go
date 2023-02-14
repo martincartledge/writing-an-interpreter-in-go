@@ -58,10 +58,34 @@ func (l *Lexer) NextToken() token.Token {
   case 0:
     tok.Literal = ""
     tok.Type = token.EOF
+  default: // if the current character is not a special character, it must be an identifier or a literal 
+    if isLetter(l.ch) {
+      tok.Literal = l.readIdentifier()
+      tok.Type = token.LookupIdent(tok.Literal)
+      return tok
+    } else {
+      tok = newToken(token.ILLEGAL, l.ch)
+    }
   }
   l.readChar()
   // look at the current character and return the appropriate token
   return tok
+}
+
+// readIdentifier reads the identifier and returns it as a string
+// this runs until it reaches a character that is not a letter
+func (l *Lexer) readIdentifier() string {
+  position := l.position
+  for isLetter(l.ch) {
+    l.readChar()
+  }
+  return l.input[position:l.position]
+}
+
+// isLetter checks if the character is a letter
+// allow a-z letters, A-Z letters, and underscores
+func isLetter(ch byte) bool {
+  return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }
 
 // newToken is a helper function to create a new token
