@@ -37,7 +37,8 @@ func (l *Lexer) readChar() {
 // NextToken returns the next token in the input string
 func (l *Lexer) NextToken() token.Token {
   var tok token.Token
-
+  // we can ignore whitespace
+  l.skipWhitespace()
   switch l.ch { // switch on the current character
   case '=':
     tok = newToken(token.ASSIGN, l.ch)
@@ -60,8 +61,13 @@ func (l *Lexer) NextToken() token.Token {
     tok.Type = token.EOF
   default: // if the current character is not a special character, it must be an identifier or a literal 
     if isLetter(l.ch) {
+      // readIdentifier calls readChar until it reaches a character that is not a letter
       tok.Literal = l.readIdentifier()
       tok.Type = token.LookupIdent(tok.Literal)
+      return tok  // return the token
+    } else if (isDigit(l.ch)) {
+      tok.Type = token.INT
+      tok.Literal = l.readNumber()
       return tok
     } else {
       tok = newToken(token.ILLEGAL, l.ch)
@@ -70,6 +76,23 @@ func (l *Lexer) NextToken() token.Token {
   l.readChar()
   // look at the current character and return the appropriate token
   return tok
+}
+// readNumber reads the number and returns it as a string
+func (l *Lexer) readNumber() string {
+  position := l.position
+  for isDigit(l.ch) {
+    l.readChar()
+  }
+  return l.input[position:l.position]
+}
+// isDigit checks if the character is a digit between 0-9
+func isDigit(ch byte) bool {
+  return '0' <= ch && ch <= '9'
+}
+func (l *Lexer) skipWhitespace() {
+  for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+    l.readChar()
+  }
 }
 
 // readIdentifier reads the identifier and returns it as a string
